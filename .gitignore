@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+env/
+venv/
+.venv
+
+# Jupyter
+.ipynb_checkpoints
+
+# Data (don't commit large files)
+data/raw/*
+data/processed/*
+*.csv
+*.jpg
+*.png
+*.pkl
+
+# Models
+models/saved_models/*.h5
+models/saved_models/*.pt
+models/saved_models/*.pth
+*.weights
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
