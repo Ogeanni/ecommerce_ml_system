@@ -1,0 +1,48 @@
+# ===============================
+# Core numerical stack
+# ===============================
+numpy
+scipy
+pandas
+
+# ===============================
+# Classical ML
+# ===============================
+scikit-learn
+imbalanced-learn
+joblib
+
+# ===============================
+# Deep Learning (COLAB / LINUX)
+# ===============================
+tensorflow>=2.13
+
+# ===============================
+# CV / NLP
+# ===============================
+opencv-python
+Pillow
+albumentations
+nltk
+
+# ===============================
+# Visualization / Utils
+# ===============================
+matplotlib
+seaborn
+tqdm
+streamlit
+python-dotenv
+
+# ===============================
+# Background / Infra
+# ===============================
+celery
+redis
+apscheduler
+
+# ===============================
+# Data / IO
+# ===============================
+openpyxl
+requests
