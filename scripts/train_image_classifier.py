@@ -9,7 +9,10 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.append(str(PROJECT_ROOT))
 
-from config import ROOT_DIR, DATA_DIR
+ROOT_DIR = Path("/content/ecommerce_ml_system")  # root of repo
+DATA_DIR = ROOT_DIR / "data"                      # data folder
+sys.path.append(str(ROOT_DIR))
+
 
 
 import tensorflow as tf
@@ -129,6 +132,11 @@ if CONFIG['use_augmentation']:
 train_dataset = train_dataset.prefetch(1)
 val_dataset   = val_dataset.prefetch(1)
 test_dataset  = test_dataset.prefetch(tf.data.AUTOTUNE)
+
+train_dataset = train_dataset.batch(CONFIG['batch_size']).prefetch(tf.data.AUTOTUNE)
+val_dataset   = val_dataset.batch(CONFIG['batch_size']).prefetch(tf.data.AUTOTUNE)
+test_dataset  = test_dataset.batch(CONFIG['batch_size']).prefetch(tf.data.AUTOTUNE)
+
 
 # ==================== STEP 3: BUILD MODEL ====================
 
