@@ -130,13 +130,10 @@ if CONFIG['use_augmentation']:
     )
 
 # Prefetch for performance
-#train_dataset = train_dataset.prefetch(1)
-#val_dataset   = val_dataset.prefetch(1)
-#test_dataset  = test_dataset.prefetch(tf.data.AUTOTUNE)
+train_dataset = train_dataset.prefetch(tf.data.AUTOTUNE)
+val_dataset   = val_dataset.prefetch(tf.data.AUTOTUNE)
+test_dataset  = test_dataset.prefetch(tf.data.AUTOTUNE)
 
-train_dataset = train_dataset.batch(CONFIG['batch_size']).prefetch(tf.data.AUTOTUNE)
-val_dataset   = val_dataset.batch(CONFIG['batch_size']).prefetch(tf.data.AUTOTUNE)
-test_dataset  = test_dataset.batch(CONFIG['batch_size']).prefetch(tf.data.AUTOTUNE)
 
 
 # ==================== STEP 3: BUILD MODEL ====================
