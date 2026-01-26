@@ -1,0 +1,61 @@
+"""
+Complete model training pipeline
+1. Prepare data
+2. Train models
+3. Evaluate and compare
+4. Save best model
+"""
+
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(PROJECT_ROOT))
+
+from src.tabular_classification.prepare_for_modeling import prepare_modeling_data
+from src.tabular_classification.train_model import train_all_models
+
+print("="*80)
+print("E-COMMERCE QUALITY CONTROL - MODEL TRAINING PIPELINE")
+print("="*80)
+
+# Step 1: Prepare data
+print("\n[STEP 1] Preparing data for modeling...")
+splits, preparator = prepare_modeling_data("data/processed/featured_orders.csv")
+
+
+# Step 2: Train all models
+print("\n[STEP 2] Training models...")
+trainer = train_all_models(splits)
+
+# Step 3: Final evaluation on test set
+print("\n" + "="*80)
+print("FINAL EVALUATION ON TEST SET")
+print("="*80)
+
+best_model_name = max(trainer.results, key=lambda x: trainer.results[x]["f1"])
+best_model = trainer.models[best_model_name]
+
+# Test set evaluation
+from sklearn.metrics import classification_report, confusion_matrix
+
+y_test_pred = best_model.predict(splits["X_test"])
+y_test_proba = best_model.predict_proba(splits["X_test"])[:,1]
+
+print(f"\nBest Model: {best_model_name}")
+print("\nTest Set Performance:")
+print(classification_report(splits["y_test"], y_test_pred, 
+                           target_names=["Good Quality", "Low Quality"]))
+
+cm = confusion_matrix(splits["y_test"], y_test_pred)
+print(f"\nConfusion Matrix:")
+print(f"  TN: {cm[0,0]:,}  FP: {cm[0,1]:,}")
+print(f"  FN: {cm[1,0]:,}  TP: {cm[1,1]:,}")
+
+print("\n" + "="*80)
+print("TRAINING PIPELINE COMPLETE!")
+print("="*80)
+print(f"\nBest model saved to: models/saved_models/best_model_{best_model_name}.pkl")
+print(f"Results saved to: results/")
+print(f"Plots saved to: results/plots/")
+

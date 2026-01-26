@@ -1,19 +1,25 @@
 # Python
 __pycache__/
 *.py[cod]
+*.pyc
+*.pyo
 *.class
 *.so
 .Python
 env/
 venv/
 .venv
+ml_tf_env/
+ml_pytorch_env/
 
 # Jupyter
 .ipynb_checkpoints
 
 # Data (don't commit large files)
 data/raw/*
+datasets/
 data/processed/*
+*.zip
 *.csv
 *.jpg
 *.png
@@ -24,6 +30,9 @@ models/saved_models/*.h5
 models/saved_models/*.pt
 models/saved_models/*.pth
 *.weights
+models/
+results/
+logs/
 
 # IDE
 .vscode/
