@@ -12,7 +12,7 @@ from sklearn.metrics import (
 from pathlib import Path
 import tensorflow as tf
 
-from config import ROOT_DIR, DATA_DIR
+from config import MODELS_DIR, LOGS_DIR
 
 
 

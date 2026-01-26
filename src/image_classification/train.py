@@ -9,7 +9,7 @@ from pathlib import Path
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-from config import ROOT_DIR, DATA_DIR
+from config import MODELS_DIR, LOGS_DIR
 
 
 class ImageClassificationTrainer:
@@ -29,9 +29,14 @@ class ImageClassificationTrainer:
         self.history = None
         
         # Create directories
-        self.model_dir = Path(f'models/image_classification/saved_models')
-        self.checkpoint_dir = Path(f'models/image_classification/checkpoints')
-        self.log_dir = Path(f'models/image_classification/logs')
+        #self.model_dir = Path(f'models/image_classification/saved_models')
+        #self.checkpoint_dir = Path(f'models/image_classification/checkpoints')
+        #self.log_dir = Path(f'models/image_classification/logs')
+
+        self.model_dir = MODELS_DIR / 'saved_models'
+        self.checkpoint_dir = MODELS_DIR / 'checkpoints'
+        self.log_dir = LOGS_DIR
+
 
         for directory in [self.model_dir, self.checkpoint_dir, self.log_dir]:
             directory.mkdir(parents=True, exist_ok=True)

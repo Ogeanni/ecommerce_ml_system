@@ -6,13 +6,14 @@ import sys
 from pathlib import Path
 
 # For running scripts on my local computer
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.append(str(PROJECT_ROOT))
+#PROJECT_ROOT = Path(__file__).resolve().parent.parent
+#sys.path.append(str(PROJECT_ROOT))
 
-ROOT_DIR = Path("/content/ecommerce_ml_system")  # root of repo
-DATA_DIR = ROOT_DIR / "data"                      # data folder
-sys.path.append(str(ROOT_DIR))
+#ROOT_DIR = Path("/content/ecommerce_ml_system")  # root of repo
+#DATA_DIR = ROOT_DIR / "data"                      # data folder
+#sys.path.append(str(ROOT_DIR))
 
+from config import ROOT_DIR, RESULTS_DIR, MODELS_DIR, LOGS_DIR
 
 
 import tensorflow as tf
@@ -230,7 +231,7 @@ if CONFIG['model_type'] == 'transfer' and CONFIG['fine_tune']:
     
     # Plot updated training history
     trainer.plot_training_history(
-        save_path='results/image_classification/training_history_with_finetune.png'
+        save_path=RESULTS_DIR /'training_history_with_finetune.png'
     )
 
 # ==================== STEP 7: SAVE MODEL ====================
@@ -254,7 +255,7 @@ evaluator = ImageClassificationEvaluator(
 # Generate comprehensive evaluation report
 evaluator.generate_full_report(
     dataset='test',
-    output_dir='results/image_classification'
+    output_dir=RESULTS_DIR
 )
 
 
