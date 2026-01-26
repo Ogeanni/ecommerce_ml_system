@@ -19,3 +19,7 @@ LOGS_DIR = ROOT_DIR / "logs/image_classification"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 MODELS_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Create folders if missing
+for d in [RESULTS_DIR, MODELS_DIR, LOGS_DIR]:
+    d.mkdir(parents=True, exist_ok=True)

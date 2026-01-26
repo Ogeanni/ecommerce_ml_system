@@ -12,9 +12,6 @@ from typing import Tuple, Dict
 import warnings
 warnings.filterwarnings('ignore')
 
-from config import ROOT_DIR, DATA_DIR
-
-
 
 class ImageDataLoader:
     """ Load and preprocess image data for classification """
