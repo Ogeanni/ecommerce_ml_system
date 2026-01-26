@@ -5,8 +5,6 @@ from tensorflow import keras
 from tensorflow.keras import layers
 import numpy as np
 
-from config import ROOT_DIR, DATA_DIR
-
 
 
 def create_augmentation_layer(include_cutout=False):
