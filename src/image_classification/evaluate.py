@@ -189,7 +189,19 @@ class ImageClassificationEvaluator:
             save_path: Path to save plot
         """
         X = self.data[f'X_{dataset}']
-        y_true = self.y_true
+
+        # If tf.data.Dataset, convert to numpy for visualization
+        if isinstance(X, tf.data.Dataset):
+            X_np = []
+            y_np = []
+            for batch_x, batch_y in X:
+                X_np.append(batch_x.numpy())
+                y_np.append(batch_y.numpy())
+            X = np.concatenate(X_np, axis=0)
+            y_true = np.concatenate(y_np, axis=0)
+        else:
+            y_true = self.y_true
+
     
         
         if self.y_pred is None:
