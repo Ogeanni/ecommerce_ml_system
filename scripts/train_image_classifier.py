@@ -130,9 +130,11 @@ if CONFIG['use_augmentation']:
     )
 
 # Prefetch for performance
-train_dataset = train_dataset.prefetch(tf.data.AUTOTUNE)
-val_dataset   = val_dataset.prefetch(tf.data.AUTOTUNE)
-test_dataset  = test_dataset.prefetch(tf.data.AUTOTUNE)
+train_dataset = train_dataset.prefetch(1)
+val_dataset   = val_dataset.prefetch(1)
+test_dataset  = test_dataset.prefetch(1)
+print(type(train_dataset))
+print(train_dataset.element_spec)
 
 
 
