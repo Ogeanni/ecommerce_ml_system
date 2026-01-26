@@ -40,7 +40,7 @@ class ImageDataLoader:
     def _preprocess(self, x, y):
         x = tf.cast(x, tf.float32) / 255.0
         x = tf.expand_dims(x, -1)                     # (H, W, 1)
-        x = tf.image.resize(x, self.img_size)         # resize lazily
+        x = tf.image.resize(x, self.img_size)         # resize 
         x = tf.image.grayscale_to_rgb(x)               # (H, W, 3)
         return x, y
 

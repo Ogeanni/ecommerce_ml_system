@@ -321,10 +321,10 @@ class ImageClassificationTrainer:
         
         # Unfreeze layers
         for layer in self.model.layers:
-            if hasattr(layer, 'layers'):  # This is the base model
-                # This temporarily unfreezes everything inside the base model
+            if hasattr(layer, 'layers'):  
+                # Temporarily unfreezes everything inside the base model
                 layer.trainable = True
-                # Freeze all except last N layers
+                # Freeze all except last 20 layers
                 for sublayer in layer.layers[:-base_model_layers_to_unfreeze]:
                     sublayer.trainable = False
         

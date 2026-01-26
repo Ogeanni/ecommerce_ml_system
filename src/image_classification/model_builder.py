@@ -11,7 +11,7 @@ from tensorflow.keras.applications import (
 
 
 class ImageClassificationModelBuilder:
-    """ Build various CNN architectures """
+    """ Build various CNN Models """
     def __init__(self, input_shape=(224, 224, 3), num_classes=10):
         """
         Initialize model builder
@@ -57,14 +57,13 @@ class ImageClassificationModelBuilder:
             layers.Dropout(0.4),
 
             # Dense layers
-            layers.Flatten(),                                           #Converts 3D feature map (H, W, C) to 1D vector. Necessary to feed into Dense (fully connected) layers.
-            layers.Dense(256, activation="relu"),                       #Dense layers:Combine features learned by conv layersLearn class-specific patterns
-            layers.BatchNormalization(),
+            layers.Flatten(),                                           
+            layers.Dense(256, activation="relu"),                       
             layers.Dropout(0.5),
             layers.Dense(128, activation="relu"),
             layers.BatchNormalization(),
             layers.Dropout(0.5),
-            layers.Dense(self.num_classes, activation="softmax")        #outputs probability distribution across classes
+            layers.Dense(self.num_classes, activation="softmax")       
             ], name="simple_cnn")
 
         return model
@@ -92,7 +91,7 @@ class ImageClassificationModelBuilder:
         else:
             raise ValueError(f"Unknown base model: {base_model_name}")
         
-        # Freeze base model. Meaning Do NOT change the weights of this model during training.” You are saying: “Use what this model already knows — don’t relearn it.”
+        # Freeze base model. 
         base_model.trainable = False
 
         # Optionally unfreeze last few layers
@@ -109,7 +108,7 @@ class ImageClassificationModelBuilder:
         # Base model
         x = base_model(x, training=False)
 
-        # Classification head (custom). This part is trained from scratch.
+        # Classification head (custom). 
         x = layers.GlobalAveragePooling2D()(x)
         x = layers.Dropout(0.3)(x)
         x = layers.Dense(256, activation="relu")(x)

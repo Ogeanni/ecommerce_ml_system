@@ -9,9 +9,6 @@ from pathlib import Path
 #PROJECT_ROOT = Path(__file__).resolve().parent.parent
 #sys.path.append(str(PROJECT_ROOT))
 
-#ROOT_DIR = Path("/content/ecommerce_ml_system")  # root of repo
-#DATA_DIR = ROOT_DIR / "data"                      # data folder
-#sys.path.append(str(ROOT_DIR))
 
 from config import ROOT_DIR, RESULTS_DIR, MODELS_DIR, LOGS_DIR
 
@@ -42,11 +39,11 @@ print("="*80)
 CONFIG = {
     # Data
     'dataset_name': 'fashion_mnist',  
-    'img_size': (124, 124),                 # Image size
+    'img_size': (124, 124),                     # Image size
     
     # Model
-    'model_type': 'simple',               # 'simple', 'transfer', 'residual'
-    'base_model_name': None,       # For transfer learning
+    'model_type': 'simple',                     # 'simple', 'transfer', 'residual'
+    'base_model_name': None,                    # For transfer learning
     
     # Training
     'batch_size': 32,
