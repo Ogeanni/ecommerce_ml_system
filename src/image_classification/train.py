@@ -9,6 +9,9 @@ from pathlib import Path
 from datetime import datetime
 import matplotlib.pyplot as plt
 
+from config import ROOT_DIR, DATA_DIR
+
+
 class ImageClassificationTrainer:
     """ Train image classification models """
     def __init__(self, model, data, model_name="image_classifier"):

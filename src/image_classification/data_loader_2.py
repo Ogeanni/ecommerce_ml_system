@@ -7,6 +7,9 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 
+from config import ROOT_DIR, DATA_DIR
+
+
 
 class DatasetWrapper:
     """

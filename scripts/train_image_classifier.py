@@ -5,8 +5,12 @@ Complete end-to-end training script for image classification
 import sys
 from pathlib import Path
 
+# For running scripts on my local computer
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.append(str(PROJECT_ROOT))
+
+from config import ROOT_DIR, DATA_DIR
+
 
 import tensorflow as tf
 import numpy as np
@@ -24,9 +28,11 @@ from src.image_classification.evaluate import ImageClassificationEvaluator
 np.random.seed(42)
 tf.random.set_seed(42)
 
+print("Num GPUs Available:", len(tf.config.list_physical_devices('GPU')))
 print("="*80)
 print("IMAGE CLASSIFICATION - COMPLETE TRAINING PIPELINE")
 print("="*80)
+
 
 # ==================== CONFIGURATION ====================
 CONFIG = {

@@ -9,6 +9,9 @@ from tensorflow.keras.applications import (
     ResNet50, MobileNetV2, EfficientNetB0, VGG16
 )
 
+from config import ROOT_DIR, DATA_DIR
+
+
 class ImageClassificationModelBuilder:
     """ Build various CNN architectures """
     def __init__(self, input_shape=(224, 224, 3), num_classes=10):

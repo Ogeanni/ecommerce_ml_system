@@ -12,6 +12,9 @@ from sklearn.metrics import (
 from pathlib import Path
 import tensorflow as tf
 
+from config import ROOT_DIR, DATA_DIR
+
+
 
 class ImageClassificationEvaluator:
     """Evaluate image classification models"""
