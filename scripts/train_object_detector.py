@@ -59,20 +59,80 @@ for key, value in CONFIG.items():
         print(f"  {key}: {value}")
 
 # ==================== STEP 1: PREPARE DATA ====================
+
+# ==================== STEP 1: PREPARE DATA ====================
 print("\n" + "="*80)
 print("STEP 1: DATA PREPARATION")
 print("="*80)
 
 data_dir = Path("data/object_detection")
 dataset_yaml = data_dir / "dataset.yaml"
-# Check if dataset images exist
-images_exist = any([
-    len(list((data_dir / f"images/{split}").glob("*.jpg"))) + len(list((data_dir / f"images/{split}").glob("*.png")))
-    for split in ["train", "val", "test"]])
 
-if not dataset_yaml.exists() or not images_exist:
-    print("\nPreparing dataset...")
+def check_dataset_valid():
+    """Check if dataset has sufficient images in all splits"""
+    if not dataset_yaml.exists():
+        print(" dataset.yaml not found")
+        return False
+    
+    # Load YAML to check class count
+    try:
+        with open(dataset_yaml, 'r') as f:
+            yaml_data = yaml.safe_load(f)
+        
+        # Check if classes match config
+        if yaml_data.get('names') != CONFIG['categories']:
+            print("  Class names in YAML don't match config")
+            return False
+    except:
+        print(" Could not read dataset.yaml")
+        return False
+    
+    # Check minimum image counts for each split
+    min_images = {
+        'train': 1500,  # Expect at least 1500 train images with 500/category
+        'val': 300,     # Expect at least 300 val images
+        'test': 100     # Expect at least 100 test images
+    }
+    
+    print("\nChecking existing dataset:")
+    all_valid = True
+    
+    for split, min_count in min_images.items():
+        split_dir = data_dir / "images" / split
+        if not split_dir.exists():
+            print(f"   {split}: directory not found")
+            all_valid = False
+            continue
+        
+        num_images = len(list(split_dir.glob("*.jpg"))) + len(list(split_dir.glob("*.png")))
+        
+        if num_images < min_count:
+            print(f"    {split}: {num_images} images (expected >= {min_count})")
+            all_valid = False
+        else:
+            print(f"  {split}: {num_images} images")
+    
+    return all_valid
 
+# Check if we need to prepare data
+need_preparation = not check_dataset_valid() or CONFIG.get('force_redownload', False)
+
+if need_preparation:
+    print("\n Preparing dataset...")
+    
+    # Clean existing data if forcing redownload
+    if CONFIG.get('force_redownload', False):
+        print(" Force redownload enabled - cleaning existing data...")
+        import shutil
+        for dir_path in [(data_dir / "images"), (data_dir / "labels")]:
+            if dir_path.exists():
+                shutil.rmtree(dir_path)
+                print(f"  Deleted: {dir_path}")
+        if dataset_yaml.exists():
+            dataset_yaml.unlink()
+            print(f"  Deleted: {dataset_yaml}")
+    
+    # Continue with data preparation...
     preparator = ObjectDetectionDataPreparator(CONFIG["dataset_name"])
 
     # Create directory structure
