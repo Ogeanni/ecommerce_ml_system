@@ -32,7 +32,6 @@ class ImageClassificationPredictor:
             # Check if it's a Keras 3 exported model or Keras 2 saved model
             if (model_path_obj / 'saved_model.pb').exists():
                 # Keras 3 exported SavedModel
-                import tensorflow as tf
                 self.model = tf.saved_model.load(str(model_path))
                 # Wrap it for inference
                 self.model = self.model.signatures['serving_default']

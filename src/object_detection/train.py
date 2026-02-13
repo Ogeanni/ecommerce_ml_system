@@ -36,10 +36,80 @@ class ObjectDetectionTrainer:
         # Output directory
         self.output_dir = Path(f"models/object_detection/runs/{project_name}")
 
+        # Validate dataset YAML
+        self.validate_dataset()
+
         print(f"   Trainer initialized")
         print(f"   Data YAML: {self.data_yaml}")
         print(f"   Model size: yolov5{self.model_size}")
         print(f"   Output directory: {self.output_dir}")
+
+    def validate_dataset(self):
+        """Validate dataset YAML and check if all paths exist"""
+        if not self.data_yaml.exists():
+            raise FileNotFoundError(f"Dataset YAML not found: {self.data_yaml}")
+        print("\n" + "="*80)
+        print("VALIDATING DATASET")
+        print("="*80)
+
+        # Load YAML
+        with open(self.data_yaml, "r") as f:
+            data = yaml.safe_load(f)
+
+        print(f"\nDataset configuration:")
+        print(f"  Number of classes: {data.get('nc', 'NOT SET')}")
+        print(f"  Class names: {data.get('names', 'NOT SET')}")
+
+        # Check required fields
+        required_fields = ["train", "val", "test", "nc", "names"]
+        missing_fields = [f for f in required_fields if f not in data]
+
+        if missing_fields:
+            raise ValueError(f"Missing required fields in YAML: {missing_fields}")
+        
+        # Validate paths
+        print(f"\nValidating paths...")
+
+        # Handle both absolute and relative paths
+        yaml_dir = self.data_yaml.parent
+
+        for split in ["train", "val", "test"]:
+            path_str = data[split]
+            path = Path(path_str)
+
+            # If relative path, make it relative to YAML file location
+            if not path.is_absolute():
+                path = yaml_dir/path
+
+            if path.exists():
+                # Count files
+                image_extensions = ['.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG']
+                images = []
+                for ext in image_extensions:
+                    images.extend(list(path.glob(f"*{ext}")))
+                
+                print(f"   {split}: {path} ({len(images)} images)")
+
+                if len(images) == 0:
+                    raise ValueError(f"No images found in {split} directory: {path}")
+            else:
+                print(f"   {split}: {path} - NOT FOUND!")
+
+                # Try to suggest fix
+                print(f"\n  Looking for directory...")
+                print(f"  YAML location: {self.data_yaml}")
+                print(f"  Looking for: {path}")
+
+                # Check if images/train or images/val exists
+                alt_path = yaml_dir / 'images' / split
+                if alt_path.exists():
+                    print(f"    Found: {alt_path}")
+                    print(f"  Update your dataset.yaml to use:")
+                    print(f"    {split}: images/{split}")
+                raise FileNotFoundError(f"{split} directory not found: {path}")
+        
+        print("\n Dataset validation complete!")
+
 
     def train(self,
               epochs: int=100,
@@ -163,7 +233,7 @@ if __name__ == "__main__":
     if Path(data_yaml).exists():
         train_object_detector(
             data_yaml=data_yaml,
-            model_size="s",
+            model_size="n",
             epochs=50,
             batch_size=16
         )

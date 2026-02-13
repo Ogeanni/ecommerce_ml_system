@@ -24,6 +24,7 @@ class ObjectDetectionDataPreparator:
         self.dataset_name = dataset_name
         self.data_dir = Path("data/object_detection")
         self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.class_names = []
 
     def create_yolo_structure(self):
         """ Create YOLO directory structure """
@@ -65,13 +66,24 @@ class ObjectDetectionDataPreparator:
             print("\nDownloading COCO dataset subset...")
             print("This may take a while on first run...")
 
+            # Create a mapping for class names to ensure consistency
+            self.class_names = categories
+
             # Map our splits to FiftyOne splits
             # YOLOv5 expects these exact folder names: train, val, test
             splits_config = [
-                {"yolo_split": "train", "fo_split": "train", "max_samples": max_images_per_category * len(categories)},
-                {"yolo_split": "val", "fo_split": "validation", "max_samples": max_images_per_category},
-                {"yolo_split": "test", "fo_split": "validation", "max_samples": max_images_per_category // 2}
+                {"yolo_split": "train", 
+                 "fo_split": "train",
+                 "max_samples": max_images_per_category * len(categories)
+                 },
+                {"yolo_split": "val_temp", # Temporary - will split into val and test
+                 "fo_split": "validation", 
+                 "max_samples": max_images_per_category}
                 ]
+            
+            # Temporary validation data for splitting
+            val_temp_images = []
+            val_temp_labels = []
 
             for config in splits_config:
                 yolo_split = config["yolo_split"]
@@ -83,6 +95,14 @@ class ObjectDetectionDataPreparator:
                 print(f"Max samples: {max_samples}")
                 print(f"{'='*60}")
 
+                # Using unique dataset name to avoid conflicts
+                dataset_name = f"coco_subset_{yolo_split}_{self.dataset_name}"
+
+                # Delete existing dataset if it exists
+                if dataset_name in fo.list_datasets():
+                    print(f"Deleting existing dataset: {dataset_name}")
+                    fo.delete_dataset(dataset_name)
+
                 # Load dataset from zoo
                 dataset = foz.load_zoo_dataset(
                     "coco-2017",
@@ -90,8 +110,9 @@ class ObjectDetectionDataPreparator:
                     label_types=["detections"],
                     classes=categories,
                     max_samples=max_samples,
-                    dataset_name=f"coco_subset_{yolo_split}"  # Give it a unique name
+                    dataset_name=dataset_name
                     )
+                
             
                 print(f"Loaded {len(dataset)} images from FiftyOne cache")
             
@@ -113,11 +134,18 @@ class ObjectDetectionDataPreparator:
                     field_value = sample[field_name]
                     if isinstance(field_value, fo.Detections):
                         detection_field = field_name
-                        print(f"\n✓ Found detections field: '{detection_field}'")
+                        print(f"\n Found detections field: '{detection_field}'")
                         break
             
                 if detection_field is None:
                     raise ValueError("Could not find detections field in dataset!")
+                
+                # Determine output split name
+                if yolo_split == "val_temp":
+                    # Export to temporary location, we'll split it later
+                    output_split = "val_temp"
+                else:
+                    output_split = yolo_split
 
                 # Create output directories
                 images_dir = self.data_dir / "images" / yolo_split
@@ -142,17 +170,81 @@ class ObjectDetectionDataPreparator:
                 exported_images = list(images_dir.glob("*.jpg")) + list(images_dir.glob("*.png"))
                 exported_labels = list(labels_dir.glob("*.txt"))
             
-                print(f"\n✓ Exported {len(exported_images)} images")
-                print(f"✓ Exported {len(exported_labels)} label files")
+                print(f"\n Exported {len(exported_images)} images")
+                print(f" Exported {len(exported_labels)} label files")
             
                 if len(exported_images) == 0:
                     print(f"  WARNING: No images exported for {yolo_split}!")
+                
+                # Store temporary val data for splitting
+                if yolo_split == "val_temp":
+                    val_temp_images = exported_images
+                    val_temp_labels = exported_labels
+
+                # # Clean up the FiftyOne dataset if exist to save memory
+                if dataset_name in fo.list_datasets():
+                    try:
+                        fo.delete_dataset(dataset_name)
+                        print(f" Cleaned up FiftyOne dataset: {dataset_name}")
+                    except Exception as e:
+                        print(f"  Could not delete dataset {dataset_name}: {e}")
             
-                # Clean up the FiftyOne dataset to save memory
-                fo.delete_dataset(f"coco_subset_{yolo_split}")
+            if val_temp_images:
+                print(f"\n{'='*60}")
+                print("Splitting validation data into val and test sets...")
+                print(f"{'='*60}")
+
+                import random
+                random.seed(42)
+
+                # Shuffle images
+                combined = list(zip(val_temp_images, val_temp_labels))
+                random.shuffle(combined)
+                val_temp_images, val_temp_labels = zip(*combined)
+
+                # Calculate split point (80% val, 20% test)
+                split_idx = int(len(val_temp_images) * 0.8)
+
+                val_images = val_temp_images[:split_idx]
+                test_images = val_temp_images[split_idx:]
+
+                # Create val and test directories
+                for split_name in ["val", "test"]:
+                    (self.data_dir / "images" / split_name).mkdir(parents=True, exist_ok=True)
+                    (self.data_dir / "labels" / split_name).mkdir(parents=True, exist_ok=True)
+
+                # Move val images
+                for img_path in val_images:
+                    label_path = self.data_dir / "labels" /"val_temp" / (img_path.stem + '.txt')
+
+                    new_img = self.data_dir / "images" / "val" / img_path.name
+                    new_label = self.data_dir / "labels" / "val" / (img_path.stem + '.txt')
+
+                    shutil.move(str(img_path), str(new_img))
+                    if label_path.exists():
+                        shutil.move(str(label_path), str(new_label))
+
+                # Move test images
+                for img_path in test_images:
+                    label_path = self.data_dir / "images" / "test" / (img_path.stem + '.txt')
+
+                    new_img = self.data_dir / "images" / "test" / img_path.name
+                    new_label = self.data_dir / "labels" / "test" / (img_path.stem + '.txt')
+
+                    shutil.move(str(img_path), str(new_img))
+                    if label_path.exists():
+                        shutil.move(str(label_path), str(new_label))
+                
+                # Remove temporary directories
+                shutil.rmtree(self.data_dir / "images" / "val_temp", ignore_errors=True)
+                shutil.rmtree(self.data_dir / "lables" / "val_temp", ignore_errors=True)
+
+                print(f" Created validation set: {len(val_images)} images")
+                print(f" Created test set: {len(test_images)} images")
+
 
             print("\n" + "="*80)
-            print("✓ COCO SUBSET DOWNLOAD COMPLETE")
+            print(" COCO SUBSET DOWNLOAD COMPLETE")
             print("="*80)
         
             return True
@@ -267,13 +359,18 @@ class ObjectDetectionDataPreparator:
         if yaml_path is None:
             yaml_path = self.data_dir / "dataset.yaml"
 
+        # Use absolute paths
+        train_path = (self.data_dir / "images" / "train").absolute()
+        val_path = (self.data_dir / "images" / "val").absolute()
+        test_path = (self.data_dir / "images" / "test").absolute()
+
         # Create YAML content
         yaml_content = {
             "path": str(self.data_dir.absolute()),
-            "train": "images/train",
-            "val": "images/val",
-            "test": "images/test",
-            "num_classes": len(class_names),
+            "train": str(train_path),
+            "val": str(val_path),
+            "test": str(test_path),
+            "nc": len(class_names),
             "names": class_names
         }
 
@@ -284,6 +381,14 @@ class ObjectDetectionDataPreparator:
         print(f"\n Created dataset YAML: {yaml_path}")
         print(f"   Number of classes: {len(class_names)}")
         print(f"   Classes: {class_names[:5]}{'...' if len(class_names) > 5 else ''}")
+
+        # Verify paths
+        for split, path in [('train', train_path), ('val', val_path), ('test', test_path)]:
+            if path.exists():
+                images = list(path.glob('*.[jp][pn]g'))
+                print(f"    {split}: {len(images)} images")
+            else:
+                print(f"     {split}: Path does not exist: {path}")
 
         return yaml_path
     

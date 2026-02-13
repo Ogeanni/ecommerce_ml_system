@@ -31,9 +31,23 @@ app.add_middleware(CORSMiddleware,
 # Load model
 print("Loading Image Classification Model...")
 try:
-    predictor = ImageClassificationPredictor(
-        model_path="models/image_classification/saved_models/fashion_mnist_transfer_final"
-    )
+    savedmodel_path = "models/image_classification/saved_models/fashion_mnist_transfer_final"
+    keras_path = "models/image_classification/saved_models/fashion_mnist_transfer_final.keras"
+    h5_path = "models/image_classification/saved_models/fashion_mnist_transfer_final.h5"
+
+    if Path(savedmodel_path).exists():
+        model_path= savedmodel_path
+    elif Path(keras_path).exists():
+        model_path = keras_path
+    elif Path(h5_path).exists():
+        model_path = h5_path
+    else:
+        print(f"\n No model found at:")
+        print(f"   - {keras_path}")
+        print(f"   - {savedmodel_path}")
+        print(f"   - {h5_path}")
+    
+    predictor = ImageClassificationPredictor(model_path=model_path)
     print(" Image Classifier loaded successfully")
 except Exception as e:
     print(f" Failed to load model: {e}")
