@@ -17,7 +17,7 @@ def resolve_root_dir(project_name: str) -> Path:
         return gdrive_root / project_name
     else:
         # Running locally
-        return Path(__file__).resolve().parents # ecommerce_ml_system root
+        return Path(__file__).resolve().parent # ecommerce_ml_system root
 
 
 class ObjectDetectionTrainer:
@@ -43,6 +43,11 @@ class ObjectDetectionTrainer:
         self.yolov5_dir = (self.root_dir / "models" / "object_detection" / "yolov5")
 
         if not self.yolov5_dir.exists():
+            print(f"  YOLOv5 not found at {self.yolov5_dir}")
+            print(" Attempting to clone YOLOv5...")
+            self._setup_yolov5()
+
+        if not self.yolov5_dir.exists():
             raise FileNotFoundError(
                 f"YOLOv5 not found at {self.yolov5_dir}. "
                 "Please clone it first: git clone https://github.com/ultralytics/yolov5.git"
@@ -58,6 +63,30 @@ class ObjectDetectionTrainer:
         print(f"   Data YAML: {self.data_yaml}")
         print(f"   Model size: yolov5{self.model_size}")
         print(f"   Output directory: {self.output_dir}")
+
+    
+    def _setup_yolov5(self):
+        """Clone and setup YOLOv5 repository"""
+        try:
+            # Create parent directory
+            self.yolov5_dir.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Clone YOLOv5
+            print("Cloning YOLOv5 repository...")
+            subprocess.run(
+                ["git", "clone", "https://github.com/ultralytics/yolov5.git", str(self.yolov5_dir)],
+                check=True,
+                cwd=self.yolov5_dir.parent
+            )
+            print(" YOLOv5 cloned successfully")
+            
+        except subprocess.CalledProcessError as e:
+            print(f" Error setting up YOLOv5: {e}")
+            print("\nPlease manually clone YOLOv5:")
+            print(f"  cd {self.yolov5_dir.parent}")
+            print("  git clone https://github.com/ultralytics/yolov5.git")
+        except Exception as e:
+            print(f" Unexpected error: {e}")
 
     def validate_dataset(self):
         """Validate dataset YAML and check if all paths exist"""
