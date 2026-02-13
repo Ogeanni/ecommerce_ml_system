@@ -78,7 +78,8 @@ class ObjectDetectionDataPreparator:
                  },
                 {"yolo_split": "val_temp", # Temporary - will split into val and test
                  "fo_split": "validation", 
-                 "max_samples": max_images_per_category}
+                 "max_samples": max_images_per_category * len(categories) // 2
+                 }
                 ]
             
             # Temporary validation data for splitting
