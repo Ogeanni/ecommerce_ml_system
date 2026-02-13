@@ -278,3 +278,68 @@ print(f"  Checkpoints: models/image_classification/checkpoints/")
 print(f"  Logs: models/image_classification/logs/")
 print(f"  Results: results/image_classification/")
 print("\n All done!")
+
+
+
+
+
+
+
+
+def save_model(self, save_path=None, save_format='tf'):
+        """ Save trained model
+        
+        Args:
+            save_path: Path to save model 
+        """
+        if save_path is None:
+            if save_format == "tf":
+                # SavedModel format uses a directory
+                save_path = self.model_dir / f'{self.model_name}_final'
+            else:
+                # H5 format uses a file
+                save_path = self.model_dir / f'{self.model_name}_final.h5'
+
+        print(f"\nSaving model in {save_format} format to {save_path}...")
+
+        if save_format == 'tf':
+            # Save in SavedModel format (directory)
+            self.model.save(str(save_path), save_format='tf')
+            print(f" Model saved to {save_path}/")
+
+            # Also save class names if available
+            if 'class_names' in self.data:
+                class_names_path = Path(save_path) / 'class_names.json'
+                with open(class_names_path, 'w') as f:
+                    json.dump(self.data['class_names'], f, indent=2)
+                print(f" Class names saved to {class_names_path}")
+
+        else:
+            # Save in H5 format (single file)
+            self.model.save(str(save_path), save_format='h5')
+            print(f" Model saved to {save_path}")
+        
+        # Save training history
+        if self.history:
+            if save_format == 'tf':
+                history_path = Path(save_path) / 'training_history.json'
+            else:
+                history_path = Path(save_path).parent / f'{self.model_name}_history.json'
+            
+            with open(history_path, 'w') as f:
+                # Convert numpy values to python types
+                history_dict = {
+                key: [float(val) for val in values] 
+                for key, values in self.history.history.items()
+            }
+                json.dump(history_dict, f, indent=2)
+            print(f" Training history saved to {history_path}")
+
+
+
+
+
+
+
+
+

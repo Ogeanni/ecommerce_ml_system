@@ -328,34 +328,50 @@ class ImageClassificationTrainer:
         """ Save trained model
         
         Args:
-            save_path: Path to save model 
+            save_path: Path to save model
+            save_format: 'tf' for SavedModel, 'keras' for .keras format, or 'h5' for HDF5
         """
         if save_path is None:
             if save_format == "tf":
-                # SavedModel format uses a directory
+                # SavedModel format uses a directory (Keras 2 style)
                 save_path = self.model_dir / f'{self.model_name}_final'
+            elif save_format == "keras":
+                # Keras 3 native format
+                save_path = self.model_dir / f'{self.model_name}_final.keras'
             else:
                 # H5 format uses a file
                 save_path = self.model_dir / f'{self.model_name}_final.h5'
 
-        print(f"\nSaving model in {save_format} format to {save_path}...")
+        print(f"\nSaving model to {save_path}...")
 
         if save_format == 'tf':
-            # Save in SavedModel format (directory)
-            self.model.save(str(save_path), save_format='tf')
-            print(f" Model saved to {save_path}/")
-
-            # Also save class names if available
-            if 'class_names' in self.data:
-                class_names_path = Path(save_path) / 'class_names.json'
-                with open(class_names_path, 'w') as f:
-                    json.dump(self.data['class_names'], f, indent=2)
-                print(f" Class names saved to {class_names_path}")
-
-        else:
-            # Save in H5 format (single file)
-            self.model.save(str(save_path), save_format='h5')
-            print(f" Model saved to {save_path}")
+            self.model.save(str(save_path))
+            print(f" Model saved in SavedModel format to {save_path}/")
+        elif save_format == 'keras':
+            self.model.save(str(save_path))
+            print(f" Model saved in Keras format to {save_path}")
+        elif save_format == 'h5':
+            # H5 format (.h5 extension)
+            self.model.save(str(save_path))
+            print(f" Model saved in H5 format to {save_path}")
+            print("  Warning: H5 format may have compatibility issues. Consider using 'keras' format")
+        
+        # Save class names if available
+        if 'class_names' in self.data:
+            if save_format == 'tf' or save_format == 'keras':
+                # For directory-based formats, save inside the model directory
+                if save_format == 'tf':
+                    class_names_path = Path(save_path) / 'class_names.json'
+                else:
+                    # For .keras files, save alongside
+                    class_names_path = Path(save_path).parent / f'{self.model_name}_class_names.json'
+            else:
+                # For H5, save alongside
+                class_names_path = Path(save_path).parent / f'{self.model_name}_class_names.json'
+            
+            with open(class_names_path, 'w') as f:
+                json.dump(self.data['class_names'], f, indent=2)
+            print(f" Class names saved to {class_names_path}")
         
         # Save training history
         if self.history:
@@ -367,12 +383,11 @@ class ImageClassificationTrainer:
             with open(history_path, 'w') as f:
                 # Convert numpy values to python types
                 history_dict = {
-                key: [float(val) for val in values] 
-                for key, values in self.history.history.items()
-            }
+                    key: [float(val) for val in values] 
+                    for key, values in self.history.history.items()
+                }
                 json.dump(history_dict, f, indent=2)
             print(f" Training history saved to {history_path}")
-
     
     def fine_tune(self, base_model_layers_to_unfreeze=20, epochs=10, learning_rate=1e-5):
         """
