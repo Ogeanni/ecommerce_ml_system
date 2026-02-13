@@ -198,8 +198,8 @@ class ObjectDetectionDataPreparator:
                 indices = list(range(len(val_temp_images)))
                 random.shuffle(indices)
 
-                # Calculate split point (80% val, 20% test)
-                split_idx = int(len(indices) * 0.8)
+                # Calculate split point (70% val, 30% test)
+                split_idx = int(len(indices) * 0.7)
                 
                 val_indices = indices[:split_idx]
                 test_indices = indices[split_idx:]
