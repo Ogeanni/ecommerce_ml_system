@@ -36,7 +36,7 @@ class ObjectDetectionDataPreparator:
 
             print(" Directory structure created")
 
-    def download_coco_subset(self, categories: List[str] = None, max_images_per_category=100):
+    def download_coco_subset(self, categories: List[str] = None, max_images_per_category=500):
         """
         Download COCO dataset subset
     
@@ -531,7 +531,7 @@ def prepare_coco_subset():
     # Download COCO subset (using fiftyone)
     success = preparator.download_coco_subset(
         categories=['bottle', 'cup', 'laptop', 'mouse', 'keyboard','cell phone', 'book', 'backpack', 'handbag'],
-        max_images_per_category=200)
+        max_images_per_category=500)
     
     if not success:
         print("\nPlease install fiftyone or manually download COCO dataset")

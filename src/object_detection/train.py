@@ -158,7 +158,7 @@ class ObjectDetectionTrainer:
     def train(self,
               epochs: int=100,
               batch_size: int=16,
-              img_size: int=640,
+              img_size: int=416,
               device: str="0",
               workers: int=8,
               resume: bool=False,
@@ -278,7 +278,7 @@ if __name__ == "__main__":
         train_object_detector(
             data_yaml=data_yaml,
             model_size="s",
-            epochs=50,
+            epochs=100,
             batch_size=16
         )
 
