@@ -12,6 +12,21 @@ from typing import List, Dict, Tuple
 import subprocess
 import sys
 
+def resolve_root_dir(project_name: str) -> Path:
+    """
+    Resolve root directory for local vs Colab + Google Drive
+    """
+    gdrive_root = Path("/content/drive/MyDrive")
+
+    if gdrive_root.exists():
+        # Running on Colab with Google Drive mounted
+        return gdrive_root / project_name
+    else:
+        # Running locally
+        return Path(__file__).resolve().parent # ecommerce_ml_system root
+
+
+
 class ObjectDetectionEvaluator:
     """ Evaluate object detection models """
     def __init__(self,
@@ -28,6 +43,7 @@ class ObjectDetectionEvaluator:
             conf_threshold: Confidence threshold
             iou_threshold: IoU threshold for NMS
         """
+        self.root_dir = resolve_root_dir("ecommerce_ml_system")
         self.weights_path = Path(weights_path)
         self.data_yaml = Path(data_yaml)
         self.conf_threshold = conf_threshold

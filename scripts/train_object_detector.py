@@ -35,16 +35,16 @@ CONFIG = {
         'bottle', 'cup', 'laptop', 'mouse', 'keyboard',
         'cell phone', 'book', 'backpack', 'handbag', 'suitcase'
     ],
-    'max_images_per_category': 100,
+    'max_images_per_category': 500,
     
     # Model
-    'model_size': 'n',  # n (nano), s (small), m (medium), l (large), x (xlarge)
+    'model_size': 's',  # n (nano), s (small), m (medium), l (large), x (xlarge)
     
     # Training
-    'epochs': 10,
-    'batch_size': 2,
+    'epochs': 100,
+    'batch_size': 16,
     'img_size': 416,
-    'patience': 5,  # Early stopping patience
+    'patience': 50,  # Early stopping patience
     
     # Evaluation
     'conf_threshold': 0.25,

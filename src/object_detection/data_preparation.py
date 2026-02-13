@@ -141,11 +141,7 @@ class ObjectDetectionDataPreparator:
                     raise ValueError("Could not find detections field in dataset!")
                 
                 # Determine output split name
-                if yolo_split == "val_temp":
-                    # Export to temporary location, we'll split it later
-                    output_split = "val_temp"
-                else:
-                    output_split = yolo_split
+                output_split = "val_temp" if yolo_split == "val_temp" else yolo_split
 
                 # Create output directories
                 images_dir = self.data_dir / "images" / yolo_split
@@ -162,7 +158,7 @@ class ObjectDetectionDataPreparator:
                     export_dir=str(self.data_dir),
                     dataset_type=fo.types.YOLOv5Dataset,
                     label_field=detection_field,  # Specify the label field
-                    split=yolo_split,
+                    split=output_split,
                     classes=categories,  # Ensure consistent class ordering
                     )
 
@@ -198,15 +194,14 @@ class ObjectDetectionDataPreparator:
                 random.seed(42)
 
                 # Shuffle images
-                combined = list(zip(val_temp_images, val_temp_labels))
-                random.shuffle(combined)
-                val_temp_images, val_temp_labels = zip(*combined)
+                indices = list(range(len(val_temp_images)))
+                random.shuffle(indices)
 
                 # Calculate split point (80% val, 20% test)
-                split_idx = int(len(val_temp_images) * 0.8)
-
-                val_images = val_temp_images[:split_idx]
-                test_images = val_temp_images[split_idx:]
+                split_idx = int(len(indices) * 0.8)
+                
+                val_indices = indices[:split_idx]
+                test_indices = indices[split_idx:]
 
                 # Create val and test directories
                 for split_name in ["val", "test"]:
@@ -214,8 +209,9 @@ class ObjectDetectionDataPreparator:
                     (self.data_dir / "labels" / split_name).mkdir(parents=True, exist_ok=True)
 
                 # Move val images
-                for img_path in val_images:
-                    label_path = self.data_dir / "labels" /"val_temp" / (img_path.stem + '.txt')
+                for idx in val_indices:
+                    img_path = val_temp_images[idx]
+                    label_path = self.data_dir / "labels" / "val_temp" / (img_path.stem + '.txt')
 
                     new_img = self.data_dir / "images" / "val" / img_path.name
                     new_label = self.data_dir / "labels" / "val" / (img_path.stem + '.txt')
@@ -225,8 +221,9 @@ class ObjectDetectionDataPreparator:
                         shutil.move(str(label_path), str(new_label))
 
                 # Move test images
-                for img_path in test_images:
-                    label_path = self.data_dir / "images" / "test" / (img_path.stem + '.txt')
+                for idx in test_indices:
+                    img_path = val_temp_images[idx]
+                    label_path = self.data_dir / "labels" / "val_temp" / (img_path.stem + '.txt')
 
                     new_img = self.data_dir / "images" / "test" / img_path.name
                     new_label = self.data_dir / "labels" / "test" / (img_path.stem + '.txt')
@@ -237,10 +234,10 @@ class ObjectDetectionDataPreparator:
                 
                 # Remove temporary directories
                 shutil.rmtree(self.data_dir / "images" / "val_temp", ignore_errors=True)
-                shutil.rmtree(self.data_dir / "lables" / "val_temp", ignore_errors=True)
+                shutil.rmtree(self.data_dir / "labels" / "val_temp", ignore_errors=True)
 
-                print(f" Created validation set: {len(val_images)} images")
-                print(f" Created test set: {len(test_images)} images")
+                print(f" Created validation set: {len(val_indices)} images")
+                print(f" Created test set: {len(test_indices)} images")
 
 
             print("\n" + "="*80)

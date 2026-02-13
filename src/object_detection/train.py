@@ -152,7 +152,7 @@ class ObjectDetectionTrainer:
                     print(f"    {split}: images/{split}")
                 raise FileNotFoundError(f"{split} directory not found: {path}")
         
-        print("\n✅ Dataset validation complete!")
+        print("\n Dataset validation complete!")
 
 
     def train(self,

@@ -161,7 +161,7 @@ class ObjectDetector:
         # Load image
         if isinstance(image, str):
             img = cv2.imread(image)
-            img = cv2.cvtColor(img, cv2.Color_BGR2BGR)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         elif isinstance(image, Image.Image):
             img = np.ndarray(image)
         else:
