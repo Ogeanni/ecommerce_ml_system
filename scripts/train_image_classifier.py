@@ -57,7 +57,7 @@ CONFIG = {
     'fine_tune_lr': 1e-5,
     
     # Saving
-    'save_format': 'tf',                        
+    'save_format': 'keras',                        
 }
 
 print("\nConfiguration:")
