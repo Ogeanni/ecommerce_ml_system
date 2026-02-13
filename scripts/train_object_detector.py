@@ -9,6 +9,15 @@ import json
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.append(str(PROJECT_ROOT))
 
+from config import get_task_dirs
+
+dirs = get_task_dirs("object_detection")
+
+MODEL_DIR = dirs["saved_models"]
+CHECKPOINT_DIR = dirs["checkpoints"]
+RESULTS_DIR = dirs["results"]
+LOGS_DIR = dirs["logs"]
+
 from src.object_detection.data_preparation import ObjectDetectionDataPreparator, prepare_coco_subset
 from src.object_detection.train import ObjectDetectionTrainer
 from src.object_detection.evaluate import ObjectDetectionEvaluator

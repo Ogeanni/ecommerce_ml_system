@@ -8,6 +8,16 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.append(str(PROJECT_ROOT))
 
 
+from config import get_task_dirs
+
+dirs = get_task_dirs("regression")
+
+MODEL_DIR = dirs["saved_models"]
+CHECKPOINT_DIR = dirs["checkpoints"]
+RESULTS_DIR = dirs["results"]
+LOGS_DIR = dirs["logs"]
+
+
 
 from src.regression.data_preparation import RegressionDataPreparator
 from src.regression.train import train_all_regression_models

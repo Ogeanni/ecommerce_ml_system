@@ -12,6 +12,15 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.append(str(PROJECT_ROOT))
 
+from config import get_task_dirs
+
+dirs = get_task_dirs("tabular_classification")
+
+MODEL_DIR = dirs["saved_models"]
+CHECKPOINT_DIR = dirs["checkpoints"]
+RESULTS_DIR = dirs["results"]
+LOGS_DIR = dirs["logs"]
+
 from src.tabular_classification.data_preparation import prepare_modeling_data
 from src.tabular_classification.train import train_all_models
 

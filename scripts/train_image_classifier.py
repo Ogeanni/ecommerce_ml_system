@@ -1,14 +1,24 @@
 """
 Complete end-to-end training script for image classification
 """
-
+import tensorflow as tf
+import numpy as np
 import sys
 from pathlib import Path
 
-from config import ROOT_DIR, RESULTS_DIR, MODELS_DIR, LOGS_DIR
 
-import tensorflow as tf
-import numpy as np
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(PROJECT_ROOT))
+
+from config import get_task_dirs
+
+dirs = get_task_dirs("image_classification")
+
+MODEL_DIR = dirs["saved_models"]
+CHECKPOINT_DIR = dirs["checkpoints"]
+RESULTS_DIR = dirs["results"]
+LOGS_DIR = dirs["logs"]
+
 
 # Import custom modules
 from src.image_classification.data_loader import load_image_data
