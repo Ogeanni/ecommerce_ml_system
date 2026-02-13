@@ -6,6 +6,20 @@ from pathlib import Path
 import subprocess
 import sys
 
+def resolve_root_dir(project_name: str) -> Path:
+    """
+    Resolve root directory for local vs Colab + Google Drive
+    """
+    gdrive_root = Path("/content/drive/MyDrive")
+
+    if gdrive_root.exists():
+        # Running on Colab with Google Drive mounted
+        return gdrive_root / project_name
+    else:
+        # Running locally
+        return Path(__file__).resolve().parents # ecommerce_ml_system root
+
+
 class ObjectDetectionTrainer:
     """ Train YOLOv5 object detection models """
     def __init__(self,
@@ -20,12 +34,13 @@ class ObjectDetectionTrainer:
             model_size: YOLOv5 model size (n, s, m, l, x)
             project_name: Project name for saving results
         """
+        self.root_dir = resolve_root_dir("ecommerce_ml_system")
         self.data_yaml = Path(data_yaml)
         self.model_size = model_size
         self.project_name = project_name
 
         # YOLOv5 directory
-        self.yolov5_dir = Path("models/object_detection/yolov5")
+        self.yolov5_dir = (self.root_dir / "models" / "object_detection" / "yolov5")
 
         if not self.yolov5_dir.exists():
             raise FileNotFoundError(
@@ -34,7 +49,7 @@ class ObjectDetectionTrainer:
             )
         
         # Output directory
-        self.output_dir = Path(f"models/object_detection/runs/{project_name}")
+        self.output_dir = (self.root_dir / "models" / "object_detection" / "runs" / project_name)
 
         # Validate dataset YAML
         self.validate_dataset()
@@ -108,7 +123,7 @@ class ObjectDetectionTrainer:
                     print(f"    {split}: images/{split}")
                 raise FileNotFoundError(f"{split} directory not found: {path}")
         
-        print("\n Dataset validation complete!")
+        print("\n✅ Dataset validation complete!")
 
 
     def train(self,
@@ -233,7 +248,7 @@ if __name__ == "__main__":
     if Path(data_yaml).exists():
         train_object_detector(
             data_yaml=data_yaml,
-            model_size="n",
+            model_size="s",
             epochs=50,
             batch_size=16
         )
