@@ -86,7 +86,8 @@ class ImageClassificationTrainer:
     def create_callbacks(self,
                          early_stopping_patience=10,
                          reduce_lr_patience=5,
-                         save_best_only=True):
+                         save_best_only=True,
+                         save_format='tf'):
         """
         Create training callbacks
          This function creates a set of training supervisors that:
@@ -105,6 +106,13 @@ class ImageClassificationTrainer:
             List of callbacks
         """
         callback_list = []
+
+        # Model checkpoint
+        if save_format == 'tf':
+            checkpoint_path = self.checkpoint_dir / f"{self.model_name}_best"
+        else:
+            checkpoint_path = self.checkpoint_dir / f"{self.model_name}_best.h5"
+            
 
         # Model checkpoint
         checkpoint_path = self.checkpoint_dir / f"{self.model_name}_best.h5"
@@ -188,34 +196,65 @@ class ImageClassificationTrainer:
         print("TRAINING MODEL")
         print("="*80)
 
+        # Handle tf.data.Dataset vs numpy arrays
+        X_train = self.data['X_train']
+        y_train = self.data['y_train']
+        X_val = self.data['X_val']
+        y_val = self.data['y_val']
+
         # Prepare validation data
         if validation_data is None:
-            validation_data = (self.data['X_val'], self.data['y_val'])
+            if isinstance(X_val, tf.data.Dataset):
+                validation_data = X_val
+            else:
+                validation_data = (X_val, y_val)
 
         # Calculate class weights if needed
         if class_weight == 'balanced':
-            class_weight = self._calculate_class_weights()
+            # Extract labels from tf.data.Dataset if needed
+            if isinstance(y_train, tf.data.Dataset):
+                y_train_array = np.concatenate([y.numpy() for _, y in y_train])
+            else:
+                y_train_array = y_train
+                
+            class_weight = self._calculate_class_weights(y_train_array)
             print(f"\nUsing balanced class weights:")
             for cls, weight in class_weight.items():
                 print(f"  Class {cls}: {weight:.4f}")
+        
+        # Print training info based on data type
+        if isinstance(X_train, tf.data.Dataset):
+            print(f"\nTraining parameters:")
+            print(f"  Epochs: {epochs}")
+            print(f"  Using tf.data.Dataset (batch_size defined in dataset)")
+        else:
+            print(f"\nTraining parameters:")
+            print(f"  Epochs: {epochs}")
+            print(f"  Batch size: {batch_size}")
+            print(f"  Training samples: {len(X_train):,}")
+            print(f"  Validation samples: {len(X_val):,}")
 
-        print(f"\nTraining parameters:")
-        print(f"  Epochs: {epochs}")
-        print(f"  Batch size: {batch_size}")
-        print(f"  Training samples: {len(self.data['X_train']):,}")
-        print(f"  Validation samples: {len(self.data['X_val']):,}")
-
-        # Train
-        self.history = self.model.fit(
-            self.data['X_train'],
-            self.data['y_train'],
-            epochs=epochs,
-            batch_size=batch_size,
-            validation_data=validation_data,
-            callbacks=callbacks_list,
-            class_weight=class_weight,
-            verbose=verbose
-        )
+        # Train - Handle both dataset types
+        if isinstance(X_train, tf.data.Dataset):
+            self.history = self.model.fit(
+                X_train,
+                epochs=epochs,
+                validation_data=validation_data,
+                callbacks=callbacks_list,
+                class_weight=class_weight,
+                verbose=verbose
+            )
+        else:
+            self.history = self.model.fit(
+                X_train,
+                y_train,
+                epochs=epochs,
+                batch_size=batch_size,
+                validation_data=validation_data,
+                callbacks=callbacks_list,
+                class_weight=class_weight,
+                verbose=verbose
+            )
         
         print(f"\n Training complete!")
         
@@ -225,12 +264,16 @@ class ImageClassificationTrainer:
     def _calculate_class_weights(self):
         """ Calculate class weights for imbalanced data """
         from sklearn.utils.class_weight import compute_class_weight
+
+        # Accept y_train as parameter to handle tf.data.Dataset
+        if y_train is None:
+            y_train = self.data['y_train']
         
-        classes = np.unique(self.data['y_train'])
+        classes = np.unique(y_train)
         weights = compute_class_weight(
             class_weight='balanced',
             classes=classes,
-            y=self.data['y_train']
+            y=y_train
         )
         
         return dict(zip(classes, weights))
@@ -281,27 +324,52 @@ class ImageClassificationTrainer:
         plt.close()
     
 
-    def save_model(self, save_path=None):
+    def save_model(self, save_path=None, save_format='tf'):
         """ Save trained model
         
         Args:
             save_path: Path to save model 
         """
         if save_path is None:
-            save_path = self.model_dir / f'{self.model_name}_final.h5'
-        
-        self.model.save(save_path)
-        print(f"\n Model saved to {save_path}")
+            if save_format == "tf":
+                # SavedModel format uses a directory
+                save_path = self.model_dir / f'{self.model_name}_final'
+            else:
+                # H5 format uses a file
+                save_path = self.model_dir / f'{self.model_name}_final.h5'
+
+        print(f"\nSaving model in {save_format} format to {save_path}...")
+
+        if save_format == 'tf':
+            # Save in SavedModel format (directory)
+            self.model.save(str(save_path), save_format='tf')
+            print(f" Model saved to {save_path}/")
+
+            # Also save class names if available
+            if 'class_names' in self.data:
+                class_names_path = Path(save_path) / 'class_names.json'
+                with open(class_names_path, 'w') as f:
+                    json.dump(self.data['class_names'], f, indent=2)
+                print(f" Class names saved to {class_names_path}")
+
+        else:
+            # Save in H5 format (single file)
+            self.model.save(str(save_path), save_format='h5')
+            print(f" Model saved to {save_path}")
         
         # Save training history
         if self.history:
-            history_path = Path(save_path).parent / f'{self.model_name}_history.json'
+            if save_format == 'tf':
+                history_path = Path(save_path) / 'training_history.json'
+            else:
+                history_path = Path(save_path).parent / f'{self.model_name}_history.json'
+            
             with open(history_path, 'w') as f:
                 # Convert numpy values to python types
                 history_dict = {
-                    key: [float(val) for val in values] 
-                    for key, values in self.history.history.items()
-                }
+                key: [float(val) for val in values] 
+                for key, values in self.history.history.items()
+            }
                 json.dump(history_dict, f, indent=2)
             print(f" Training history saved to {history_path}")
 

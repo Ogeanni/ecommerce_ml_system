@@ -34,10 +34,10 @@ def load_data(file_path, sample_size=10000):
     df["name_length"] = df.item_description.str.len()
     df["desc_length"] = df.item_description.str.len()
 
-    df.brand_name.fillna("Unknown", inplace=True)
-    df.main_category.fillna("Unknown", inplace=True)
-    df.sub_category.fillna("Unknown", inplace=True)
-    df.sub_sub_category.fillna("Unknown", inplace=True)
+    df.brand_name.fillna("unknown", inplace=True)
+    df.main_category.fillna("unknown", inplace=True)
+    df.sub_category.fillna("unknown", inplace=True)
+    df.sub_sub_category.fillna("unknown", inplace=True)
 
     return df
 

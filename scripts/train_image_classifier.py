@@ -6,8 +6,8 @@ import sys
 from pathlib import Path
 
 # For running scripts on my local computer
-#PROJECT_ROOT = Path(__file__).resolve().parent.parent
-#sys.path.append(str(PROJECT_ROOT))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(PROJECT_ROOT))
 
 
 from config import ROOT_DIR, RESULTS_DIR, MODELS_DIR, LOGS_DIR
@@ -42,12 +42,12 @@ CONFIG = {
     'img_size': (124, 124),                     # Image size
     
     # Model
-    'model_type': 'simple',                     # 'simple', 'transfer', 'residual'
+    'model_type': 'transfer',                     # 'simple', 'transfer', 'residual'
     'base_model_name': None,                    # For transfer learning
     
     # Training
     'batch_size': 32,
-    'epochs': 20,
+    'epochs': 2,
     'learning_rate': 0.001,
     'optimizer': 'adam',
     
@@ -235,7 +235,7 @@ print("\n" + "="*80)
 print("STEP 7: SAVING MODEL")
 print("="*80)
 
-trainer.save_model()
+trainer.save_model(save_format='tf') 
 
 # ==================== STEP 8: EVALUATE MODEL ====================
 print("\n" + "="*80)

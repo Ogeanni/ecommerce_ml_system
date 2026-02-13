@@ -1,0 +1,30 @@
+# Core PyTorch
+torch
+torchvision
+torchaudio
+
+# Object detection essentials
+numpy
+opencv-python
+Pillow
+scipy
+
+# Training utilities
+tqdm
+pandas
+PyYAML
+
+# Visualization & logging
+matplotlib
+seaborn
+tensorboard
+
+# Augmentation
+albumentations
+
+# Detection utilities
+pycocotools
+thop
+
+# Metrics / helpers
+scikit-learn

@@ -103,7 +103,16 @@ class ImageClassificationModelBuilder:
         inputs = keras.Input(shape=self.input_shape)
 
         # Preprocessing for pretrained models
-        x = keras.applications.mobilenet_v2.preprocess_input(inputs) if base_model_name == "mobilenetv2" else inputs
+        if base_model_name == "mobilenetv2":
+            x = keras.applications.mobilenet_v2.preprocess_input(inputs)
+        elif base_model_name == "resnet50":
+            x = keras.applications.resnet50.preprocess_input(inputs)
+        elif base_model_name == "vgg16":
+            x = keras.applications.vgg16.preprocess_input(inputs)
+        elif base_model_name == "efficientnetb0":
+            x = keras.applications.efficientnet.preprocess_input(inputs)
+        else:
+            x = inputs
 
         # Base model
         x = base_model(x, training=False)

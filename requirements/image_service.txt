@@ -1,0 +1,36 @@
+# Core
+numpy
+pandas
+scipy
+scikit-learn
+matplotlib
+seaborn
+tqdm
+
+# PyTorch
+torch
+torchvision
+torchaudio
+
+# Image / CV
+opencv-python
+Pillow
+albumentations
+pycocotools
+thop
+ultralytics
+
+# Optional
+tensorboard
+plotly
+fiftyone
+
+
+
+
+
+
+
+
+
+

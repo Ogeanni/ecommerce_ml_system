@@ -1,0 +1,41 @@
+{
+  "models": {
+    "tabular_classification": {
+      "enabled": true,
+      "model_path": "models/tabular_classification/saved_models/best_model_random_forest.pkl",
+      "preprocessing_path": "models/tabular_classification/preprocessing",
+      "description": "Predicts order quality risk"
+    },
+    "image_classification": {
+      "enabled": true,
+      "model_path": "models/image_classification/saved_models/fashion_mnist_transfer_final.h5",
+      "description": "Classifies product images"
+    },
+    "object_detection": {
+      "enabled": true,
+      "weights_path": "models/object_detection/runs/object_detection/train/weights/best.pt",
+      "data_yaml": "data/object_detection/dataset.yaml",
+      "description": "Detects objects in product images"
+    },
+    "regression": {
+      "enabled": true,
+      "model_path": "models/regression/saved_models/best_model_xgboost.pkl",
+      "preprocessing_path": "models/regression/preprocessing",
+      "description": "Predicts delivery time"
+    }
+  },
+  "thresholds": {
+    "quality_risk": 0.35,
+    "delivery_delay_warning": 15,
+    "low_confidence_threshold": 0.6
+  },
+  "logging": {
+    "level": "INFO",
+    "log_file": "logs/system.log"
+  },
+  "api": {
+    "host": "0.0.0.0",
+    "port": 5000,
+    "debug": false
+  }
+}

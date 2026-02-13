@@ -1,0 +1,16 @@
+names:
+- bottle
+- cup
+- laptop
+- mouse
+- keyboard
+- cell phone
+- book
+- backpack
+- handbag
+- suitcase
+num_classes: 10
+path: /Users/user/Documents/Projects/ml_projects/ecommerce_ml_system/data/object_detection
+test: images/test
+train: images/train
+val: images/val
