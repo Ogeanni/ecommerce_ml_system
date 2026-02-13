@@ -6,8 +6,8 @@ import sys
 from pathlib import Path
 
 # For running scripts on my local computer
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.append(str(PROJECT_ROOT))
+#PROJECT_ROOT = Path(__file__).resolve().parent.parent
+#sys.path.append(str(PROJECT_ROOT))
 
 
 from config import ROOT_DIR, RESULTS_DIR, MODELS_DIR, LOGS_DIR
@@ -43,7 +43,7 @@ CONFIG = {
     
     # Model
     'model_type': 'transfer',                     # 'simple', 'transfer', 'residual'
-    'base_model_name': None,                    # For transfer learning
+    'base_model_name': "mobilenetv2",                    # For transfer learning
     
     # Training
     'batch_size': 32,
