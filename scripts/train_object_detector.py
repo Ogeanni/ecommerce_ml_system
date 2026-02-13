@@ -35,7 +35,7 @@ CONFIG = {
         'bottle', 'cup', 'laptop', 'mouse', 'keyboard',
         'cell phone', 'book', 'backpack', 'handbag', 'suitcase'
     ],
-    'max_images_per_category': 50,
+    'max_images_per_category': 100,
     
     # Model
     'model_size': 'n',  # n (nano), s (small), m (medium), l (large), x (xlarge)

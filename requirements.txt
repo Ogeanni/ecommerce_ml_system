@@ -46,3 +46,6 @@ apscheduler
 # ===============================
 openpyxl
 requests
+
+ultralytics
+fiftyone
