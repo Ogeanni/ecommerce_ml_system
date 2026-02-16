@@ -71,10 +71,12 @@ print("\n" + "="*80)
 print("STEP 1: DATA PREPARATION")
 print("="*80)
 
-source_data_path = Path(CONFIG["source_data"])
-
-if not source_data_path.exists():
-    print(f"\n Source data not found: {source_data_path}")
+if Path(CONFIG["source_data"]).exists():
+    source_data_path = Path(CONFIG["source_data"])
+elif Path('/content/drive/MyDrive/ecommerce_ml_system').exists():
+    source_data_path = Path('/content/drive/MyDrive/ecommerce_ml_system')
+else:
+    print(f"\n Source data not found")
     print("Please run the tabular classification pipeline first to generate this data")
     print("Run: python scripts/train_tabular_classifier.py")
     sys.exit(1)
