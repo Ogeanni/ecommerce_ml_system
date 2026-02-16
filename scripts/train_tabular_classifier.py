@@ -12,6 +12,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.append(str(PROJECT_ROOT))
 
+from config import PROCESSED_DATA_DIR
+
 from config import get_task_dirs
 
 dirs = get_task_dirs("tabular_classification")
@@ -30,7 +32,8 @@ print("="*80)
 
 # Step 1: Prepare data
 print("\n[STEP 1] Preparing data for modeling...")
-splits, preparator = prepare_modeling_data("data/processed/featured_orders.csv")
+data_path = PROCESSED_DATA_DIR / "featured_orders.csv"
+splits, preparator = prepare_modeling_data(data_path)
 
 
 # Step 2: Train all models

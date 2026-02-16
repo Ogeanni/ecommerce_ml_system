@@ -7,12 +7,22 @@ import json
 from pathlib import Path
 from typing import Union, List, Dict
 
+from config import get_task_dirs
+
+dir_name = get_task_dirs("tabular_classification")
+
+MODEL_DIR = dir_name["saved_models"]
+CHECKPOINT_DIR = dir_name["checkpoints"]
+PREPROCESSING = dir_name["preprocessing"]
+RESULTS_DIR = dir_name["results"]
+LOGS_DIR = dir_name["logs"]
+
 class DeliveryTimePredictor:
     """Predict delivery time for new orders"""
 
     def __init__(self,
-                 model_path: str = "models/regression/saved_models",
-                 preprocessing_path: str = "models/regression/preprocessing"):
+                 model_path: str = MODEL_DIR,
+                 preprocessing_path: str = PREPROCESSING):
         """
         Initialize predictor
         
@@ -21,7 +31,7 @@ class DeliveryTimePredictor:
             preprocessing_path: Path to preprocessing objects
         """
         # Load preprocessing objects
-        preprocessing_dir = Path(preprocessing_path)
+        preprocessing_dir = preprocessing_path
 
         print("Loading preprocessing objects...")
 
@@ -44,7 +54,7 @@ class DeliveryTimePredictor:
         # Load model
         if model_path is None:
             # Try to load best model
-            model_dir = Path("models/regression/saved_models")
+            model_dir = model_path
             with open(model_dir/"best_model_metadata.json", "r") as f:
                 metadata = json.load(f)
 

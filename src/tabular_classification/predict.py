@@ -8,11 +8,22 @@ from pathlib import Path
 import warnings
 warnings.filterwarnings('ignore')
 
+from config import get_task_dirs
+from config import PROCESSED_DATA_DIR
+
+dir_name = get_task_dirs("tabular_classification")
+
+MODEL_DIR = dir_name["saved_models"]
+CHECKPOINT_DIR = dir_name["checkpoints"]
+PREPROCESSING = dir_name["preprocessing"]
+RESULTS_DIR = dir_name["results"]
+LOGS_DIR = dir_name["logs"]
+
 class QualityPredictor:
     """Make predictions on new orders"""
     def __init__(self,
-                 model_path = "models/tabular_classification/saved_models",
-                 preprocessing_path = "models/tabular_classification/preprocessing"):
+                 model_path = MODEL_DIR,
+                 preprocessing_path = PREPROCESSING):
         """
         Load trained model and preprocessing objects
         
@@ -22,7 +33,7 @@ class QualityPredictor:
         """
         print("Loading model and preprocessing objects...")
 
-        preprocessing_dir = Path(preprocessing_path)
+        preprocessing_dir = preprocessing_path
 
         # Load preprocessing objects
         self.scalers = joblib.load(f"{preprocessing_dir}/scalers.pkl")
@@ -42,12 +53,11 @@ class QualityPredictor:
         # Load model metadata to find best model
         if model_path:
             # Try load this best model
-            model_dir = Path("models/tabular_classification/saved_models")
-            with open(model_dir/"best_model_metadata.json", "r") as f:
+            with open(MODEL_DIR/"best_model_metadata.json", "r") as f:
                 metadata = json.load(f)
 
             model_name = metadata["model_name"]
-            model_path = model_dir/f"best_model_{model_name}.pkl"
+            model_path = MODEL_DIR/f"best_model_{model_name}.pkl"
 
         # Load model
         print(f"\nLoading model from {model_path}...")
@@ -285,7 +295,7 @@ if __name__ == "main":
     
     # Load some sample data (use your featured dataset)
     try:
-        test_data = pd.read_csv("data/processed/final_dataset.csv").head(50)
+        test_data = pd.read_csv("data/processed/featured_orders.csv").head(50)
 
         # Make batch predictions
         predictions = predictor.batch_predict(test_data, output_path="results/sample_predictions.csv")

@@ -95,6 +95,7 @@ def get_task_dirs(task_name: str):
         "models": MODELS_DIR / task_name,
         "saved_models": MODELS_DIR / task_name / "saved_models",
         "checkpoints": MODELS_DIR / task_name / "checkpoints",
+        "preprocessing": MODELS_DIR / task_name / "preprocessing",
         "logs": LOGS_DIR / task_name,
         "results": RESULTS_DIR / task_name,
     }

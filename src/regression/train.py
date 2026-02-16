@@ -20,6 +20,15 @@ from typing import Dict
 import warnings
 warnings.filterwarnings('ignore')
 
+from config import get_task_dirs
+
+dir_name = get_task_dirs("tabular_classification")
+
+MODEL_DIR = dir_name["saved_models"]
+CHECKPOINT_DIR = dir_name["checkpoints"]
+RESULTS_DIR = dir_name["results"]
+LOGS_DIR = dir_name["logs"]
+
 class RegressionModelTrainer:
     """ Train regression models for delivery time prediction """
     def __init__(self, splits: Dict,):
@@ -34,8 +43,7 @@ class RegressionModelTrainer:
         self.models = {}
         self.results = {}
 
-        self.model_dir = Path("models/regression/saved_models")
-        self.model_dir.mkdir(parents=True, exist_ok=True)
+        self.model_dir = MODEL_DIR
 
     def train_linear_regression(self):
         """Train simple linear regression"""
@@ -280,8 +288,7 @@ class RegressionModelTrainer:
         print("\n", comp_df.to_string(index=False))
 
         # Save comparison
-        save_path = Path("results/regression/model_comparison.csv")
-        save_path.parent.mkdir(parents=True, exist_ok=True)
+        save_path = RESULTS_DIR / "model_comparison.csv"
         comp_df.to_csv(save_path, index=False)
         
         return comp_df
@@ -322,9 +329,8 @@ class RegressionModelTrainer:
         plt.tight_layout()
         
         if save_path is None:
-            save_path = f'results/regression/predictions_vs_actual_{model_name}.png'
+            save_path = f'{RESULTS_DIR}/predictions_vs_actual_{model_name}.png'
         
-        Path(save_path).parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
         plt.close()
         

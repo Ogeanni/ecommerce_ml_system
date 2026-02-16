@@ -12,6 +12,16 @@ from pathlib import Path
 from typing import Dict
 import joblib
 
+from config import get_task_dirs
+
+dir_name = get_task_dirs("tabular_classification")
+
+MODEL_DIR = dir_name["saved_models"]
+CHECKPOINT_DIR = dir_name["checkpoints"]
+PREPROCESSING = dir_name["preprocessing"]
+RESULTS_DIR = dir_name["results"]
+LOGS_DIR = dir_name["logs"]
+
 
 class RegressionEvaluator:
     """Evaluate regression models"""
@@ -285,14 +295,13 @@ class RegressionEvaluator:
             print(f"{actual:<10.2f} {predicted:<12.2f} {error:<10.2f} {pct_error:<10.2f}%")
 
 
-    def generate_full_report(self, output_dir='results/regression'):
+    def generate_full_report(self, output_dir=RESULTS_DIR):
         """Generate comprehensive evaluation report"""
         print("\n" + "="*80)
         print("GENERATING COMPREHENSIVE EVALUATION REPORT")
         print("="*80)
         
-        output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir
         
         # 1. Evaluate
         metrics = self.evaluate()

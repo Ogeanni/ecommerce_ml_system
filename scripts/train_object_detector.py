@@ -59,8 +59,6 @@ for key, value in CONFIG.items():
         print(f"  {key}: {value}")
 
 # ==================== STEP 1: PREPARE DATA ====================
-
-# ==================== STEP 1: PREPARE DATA ====================
 print("\n" + "="*80)
 print("STEP 1: DATA PREPARATION")
 print("="*80)

@@ -27,6 +27,17 @@ from pathlib import Path
 import warnings
 warnings.filterwarnings('ignore')
 
+
+
+from config import get_task_dirs
+
+dir_name = get_task_dirs("tabular_classification")
+
+MODEL_DIR = dir_name["saved_models"]
+CHECKPOINT_DIR = dir_name["checkpoints"]
+RESULTS_DIR = dir_name["results"]
+LOGS_DIR = dir_name["logs"]
+
 class QualityControlModelTrainer:
     """ Train and evaluate classification models """
 
@@ -300,8 +311,7 @@ class QualityControlModelTrainer:
         print(f"\n Best model: {best_model_name} (F1={best_f1:.4f})")
 
         # Save model
-        Path("models/tabular_classification/saved_models").mkdir(parents=True, exist_ok=True)
-        joblib.dump(best_model, f"models/tabular_classification/saved_models/best_model_{best_model_name}.plk")
+        joblib.dump(best_model, f"{MODEL_DIR}/best_model_{best_model_name}.plk")
 
         # Save model metadata
         metadata = {
@@ -313,7 +323,7 @@ class QualityControlModelTrainer:
             "feature_count": len(self.splits["X_train"].columns)
         }
 
-        with open(f"models/tabular_classification/saved_models/best_model_metadata.json", "w") as f:
+        with open(MODEL_DIR/"best_model_metadata.json", "w") as f:
             json.dump(metadata, f, indent=2)
 
         return best_model, best_model_name
