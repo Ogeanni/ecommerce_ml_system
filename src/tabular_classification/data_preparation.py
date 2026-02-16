@@ -14,9 +14,16 @@ import json
 from pathlib import Path
 import warnings
 warnings.filterwarnings('ignore')
+import sys
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(PROJECT_ROOT))
+
+from config import PROCESSED_DATA_DIR
+
 
 class ModelDataPreparator:
 
@@ -319,7 +326,7 @@ class ModelDataPreparator:
         print(f"\n Saved preprocessing objects to {save_dir}/")
 
 
-def prepare_modeling_data(df_path="data/processed/featured_orders.csv"):
+def prepare_modeling_data(df_path= PROCESSED_DATA_DIR/ "featured_orders.csv"):
     """
         Convenience function to prepare data for modeling
     
